@@ -18,23 +18,10 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::middleware('auth:sanctum')->group(function () {
 
 
-
-    Route::get('/user', [AuthController::class, 'index']);
-    Route::put('/user', [AuthController::class, 'update']);
-
-    // Route::middleware('role:admin, role:super_admin')->group(function () {
-    //     Route::get('/questions', [QuestionController::class, 'index']);
-    //     Route::post('/questions', [QuestionController::class, 'store']);
-    //     Route::post('/packages', [PackageController::class, 'store']);
-    //     Route::get('/users', [AuthController::class, 'getAllUsers']);
-    //     Route::get('/materials', action: [MaterialController::class, 'index']);
-    //     Route::get('/packages', [PackageController::class, 'index']);
-    // });
-
     
 
-
-
+    Route::get('/user', [AuthController::class, 'index']);
+    Route::put('/user', [AuthController::class, 'update']);  
     Route::get('/questions', [QuestionController::class, 'index']);
     Route::post('/questions', [QuestionController::class, 'store']);
     Route::get('/transactions', action: [TransactionController::class, 'index']);
