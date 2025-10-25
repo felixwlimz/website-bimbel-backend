@@ -11,14 +11,18 @@ class RoleMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * Usage: ->middleware('role:admin') or ->middleware('role:admin,super_admin')
      */
-      public function handle(Request $request, Closure $next, ...$roles)
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
         $user = $request->user();
-        if (! $user || ! in_array($user->role, $roles)) {
-            return response()->json(['message' => 'Forbidden'], 403);
+
+        if (!$user || !in_array($user->role, $roles)) {
+            return response()->json([
+                'message' => 'Unauthorized — you do not have the required role.'
+            ], 403);
         }
+
         return $next($request);
     }
 }

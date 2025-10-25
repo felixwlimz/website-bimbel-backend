@@ -37,6 +37,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role'
     ];
 
     /**
@@ -82,9 +83,13 @@ class User extends Authenticatable
     }
 
 
-    public function hasRole($role)
+      public function hasRole($roles)
     {
-        return $this->role === $role;
+        if (is_array($roles)) {
+            return in_array($this->role, $roles);
+        }
+
+        return $this->role === $roles;
     }
 
     public function hasAnyRole(array $roles): bool

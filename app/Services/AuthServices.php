@@ -81,4 +81,9 @@ class AuthServices
         ]);
         return $this->userRepository->update($validated);
     }
+
+    public function deleteUser($id)
+    {
+        return $this->userRepository->delete($id);
+    }
 }

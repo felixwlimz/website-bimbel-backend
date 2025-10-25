@@ -18,16 +18,22 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/user', [AuthController::class, 'index']);
-    Route::put('/user', [AuthController::class, 'update']);  
+    Route::put('/user', [AuthController::class, 'update']);
+
+
+    Route::middleware('role:super_admin')->group(function () {
+        Route::delete('/user/{id}', [AuthController::class, 'delete']);
+        Route::delete('/questions/{id}', [QuestionController::class, 'delete']);
+        Route::get('/transactions', action: [TransactionController::class, 'index']);
+        Route::get('/users', action: [AuthController::class, 'getAllUsers']);
+    });
+
     Route::get('/questions', [QuestionController::class, 'index']);
     Route::post('/questions', [QuestionController::class, 'store']);
-    Route::delete('/questions/{id}', [QuestionController::class, 'delete']);
-    Route::get('/transactions', action: [TransactionController::class, 'index']);
     Route::post('/affiliates', [AffiliateController::class, 'store']);
     Route::get('/affiliates', [AffiliateController::class, 'index']);
     Route::get('/withdrawals', [WithdrawalController::class, 'index']);
     Route::get('/materials', action: [MaterialController::class, 'index']);
-    Route::get('/users', [AuthController::class, 'getAllUsers']);
     Route::post('/upload-materi', [MaterialController::class, 'store']);
     Route::post('/payments', [PaymentController::class, 'createPayment']);
     Route::post('/payments/notification', [PaymentController::class, 'notification']);

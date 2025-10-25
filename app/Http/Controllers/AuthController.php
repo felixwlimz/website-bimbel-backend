@@ -47,4 +47,15 @@ class AuthController extends Controller
         ]);
     }
 
+
+    public function delete($id)
+    {
+        $this->authServices->deleteUser($id);
+
+        return response()->json([
+            'message' => 'User deleted successfully',
+            'code' => 200,
+        ]);
+    }
+
 }
