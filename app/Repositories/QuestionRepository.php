@@ -29,4 +29,10 @@ class QuestionRepository
     {
         return Question::with(['package', 'options'])->findOrFail($id);
     }
+
+    public function delete($id)
+    {
+        $question = Question::findOrFail($id);
+        return $question->delete();
+    }
 }

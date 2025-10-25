@@ -69,4 +69,9 @@ class SoalMateriServices
     {
         return $this->materialRepository->findAll();
     }
+
+    public function deleteQuestion($id)
+    {
+        return $this->questionRepository->delete($id);
+    }
 }

@@ -30,4 +30,11 @@ class QuestionController extends Controller
             'data' => $question
         ], 201);
     }
+
+    public function delete($id){
+        $this->soalMateriServices->deleteQuestion($id);
+        return response()->json([
+            'message' => 'Question deleted successfully'
+        ], 200);
+    }
 }

@@ -17,13 +17,11 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
-
-    
-
     Route::get('/user', [AuthController::class, 'index']);
     Route::put('/user', [AuthController::class, 'update']);  
     Route::get('/questions', [QuestionController::class, 'index']);
     Route::post('/questions', [QuestionController::class, 'store']);
+    Route::delete('/questions/{id}', [QuestionController::class, 'delete']);
     Route::get('/transactions', action: [TransactionController::class, 'index']);
     Route::post('/affiliates', [AffiliateController::class, 'store']);
     Route::get('/affiliates', [AffiliateController::class, 'index']);
