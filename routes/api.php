@@ -21,13 +21,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/user', [AuthController::class, 'update']);
 
 
-    Route::middleware('role:super_admin')->group(function () {
-        Route::delete('/user/{id}', [AuthController::class, 'delete']);
-        Route::delete('/questions/{id}', [QuestionController::class, 'delete']);
-        Route::get('/transactions', action: [TransactionController::class, 'index']);
-        Route::get('/users', action: [AuthController::class, 'getAllUsers']);
-    });
+    // Route::middleware('role:super_admin')->group(function () {
+    //     Route::delete('/user/{id}', [AuthController::class, 'delete']);
+    //     Route::delete('/questions/{id}', [QuestionController::class, 'delete']);
+    //     Route::get('/transactions', action: [TransactionController::class, 'index']);
+    //     Route::get('/users', action: [AuthController::class, 'getAllUsers']);
+    // });
 
+    Route::delete('/user/{id}', [AuthController::class, 'delete']);
+    Route::delete('/questions/{id}', [QuestionController::class, 'delete']);
+    Route::get('/transactions', action: [TransactionController::class, 'index']);
+    Route::get('/users', action: [AuthController::class, 'getAllUsers']);
     Route::get('/questions', [QuestionController::class, 'index']);
     Route::post('/questions', [QuestionController::class, 'store']);
     Route::post('/affiliates', [AffiliateController::class, 'store']);
