@@ -10,6 +10,7 @@ use App\Http\Controllers\PackageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\LandingPageController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\VoucherController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
@@ -36,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/questions', [QuestionController::class, 'store']);
     Route::post('/affiliates', [AffiliateController::class, 'store']);
     Route::get('/affiliates', [AffiliateController::class, 'index']);
+    Route::post('/affiliates/withdraw', [AffiliateController::class, 'withdraw']);
     Route::get('/withdrawals', [WithdrawalController::class, 'index']);
     Route::get('/materials', action: [MaterialController::class, 'index']);
     Route::post('/upload-materi', [MaterialController::class, 'store']);
@@ -45,4 +47,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/packages', [PackageController::class, 'store']);
     Route::post('/landing-page', [LandingPageController::class, 'store']);
     Route::get('/landing-page', [LandingPageController::class, 'index']);
+
+       Route::get('/vouchers', [VoucherController::class, 'index']);
+    Route::post('/vouchers', [VoucherController::class, 'store']);
+    Route::put('/vouchers/{id}', [VoucherController::class, 'update']);
+    Route::delete('/vouchers/{id}', [VoucherController::class, 'destroy']);
+
+    // cek voucher user
+    Route::post('/voucher/check', [VoucherController::class, 'check']);
 });

@@ -34,4 +34,13 @@ class AffiliateController extends Controller
         ], 201);
 
     }
+
+    public function withdraw(Request $request){
+        $withdraw = $this->affiliateServices->withdraw($request);
+
+        return response()->json([
+            'message' => 'Withdrawal created successfully',
+            'data' => $withdraw
+        ]);
+    }
 }
