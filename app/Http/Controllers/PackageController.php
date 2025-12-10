@@ -42,4 +42,51 @@ class PackageController extends Controller
             'data' => $package
         ], 201);
     }
+
+    public function show($id){
+        $package = $this->packageServices->getPackageById($id);
+        if (!$package) {
+            return response()->json([
+                'message' => 'Package not found'
+            ], 404);
+        }
+        return response()->json([
+            'message' => 'Package retrieved successfully',
+            'data' => $package
+        ], 200);
+    }
+
+    public function update(Request $request, $id){
+        $validated = $request->validate([
+            'title' => 'sometimes|string|max:255',
+            'type' => 'sometimes|in:materi,soal,bundling',
+            'description' => 'sometimes|string',
+            'price' => 'sometimes|integer|min:0',
+            'duration_minutes' => 'sometimes|integer|min:1',
+            'thumbnail' => 'sometimes|url',
+            'is_published' => 'sometimes|boolean',
+        ]);
+        $package = $this->packageServices->updatePackage($id, $validated);
+        if (!$package) {
+            return response()->json([
+                'message' => 'Package not found'
+            ], 404);
+        }
+        return response()->json([
+            'message' => 'Package updated successfully',
+            'data' => $package
+        ], 200);
+    }
+
+    public function destroy($id){
+        $deleted = $this->packageServices->deletePackage($id);
+        if (!$deleted) {
+            return response()->json([
+                'message' => 'Package not found'
+            ], 404);
+        }
+        return response()->json([
+            'message' => 'Package deleted successfully'
+        ], 200);
+    }
 }

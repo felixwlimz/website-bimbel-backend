@@ -1,6 +1,7 @@
-<?php 
+<?php
 
 namespace App\Services;
+
 use App\Repositories\PackageRepository;
 
 class PackageServices
@@ -22,8 +23,28 @@ class PackageServices
         return $this->packageRepository->find($id);
     }
 
-
-    public function createPackage(array $data){
+    public function createPackage(array $data)
+    {
         return $this->packageRepository->create($data);
+    }
+
+    public function updatePackage($id, array $data)
+    {
+        return $this->packageRepository->update($id, $data);
+    }
+
+    public function deletePackage($id)
+    {
+        return $this->packageRepository->delete($id);
+    }
+
+    public function getPackageCategories()
+    {
+        return $this->packageRepository
+            ->findAll()
+            ->pluck('category')
+            ->filter()            // buang null
+            ->unique()
+            ->values();
     }
 }

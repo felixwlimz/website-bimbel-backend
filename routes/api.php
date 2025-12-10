@@ -45,6 +45,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/payments/notification', [PaymentController::class, 'notification']);
     Route::get('/packages', [PackageController::class, 'index']);
     Route::post('/packages', [PackageController::class, 'store']);
+    Route::put('/packages/{id}', [PackageController::class, 'update']);
+    Route::delete('/packages/{id}', [PackageController::class, 'destroy']);
     Route::post('/landing-page', [LandingPageController::class, 'store']);
     Route::get('/landing-page', [LandingPageController::class, 'index']);
 
