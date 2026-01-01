@@ -11,14 +11,35 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('answer', function (Blueprint $table) {
+        Schema::create('answers', function (Blueprint $table) {
             $table->uuid('id')->primary();
+
             $table->uuid('answer_sheet_id');
-            $table->foreign('answer_sheet_id')->references('id')->on('answer_sheets')->onDelete('cascade');
+            $table->foreign('answer_sheet_id')
+                ->references('id')
+                ->on('answer_sheets')
+                ->onDelete('cascade');
+
             $table->uuid('question_id');
-            $table->foreign('question_id')->references('id')->on('questions')->onDelete('cascade');
-            $table->boolean('is_correct');
+            $table->foreign('question_id')
+                ->references('id')
+                ->on('questions')
+                ->onDelete('cascade');
+
+            // jawaban user
+            $table->uuid('option_id')->nullable();
+            $table->foreign('option_id')
+                ->references('id')
+                ->on('options')
+                ->onDelete('set null');
+
+            // autosave support
+            $table->timestamp('last_saved_at')->nullable();
+
             $table->timestamps();
+
+            // 1 soal = 1 jawaban per attempt
+            $table->unique(['answer_sheet_id', 'question_id']);
         });
     }
 

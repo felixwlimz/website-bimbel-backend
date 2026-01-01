@@ -13,12 +13,32 @@ return new class extends Migration
     {
         Schema::create('vouchers', function (Blueprint $table) {
             $table->uuid('id')->primary();
+
             $table->string('code')->unique();
-            $table->integer('discount_rp');
-            $table->enum('type', ['fixed', 'percentage']);
-            $table->boolean('active');
+
+            // discount rule
+            $table->enum('discount_type', ['fixed', 'percentage']);
+            $table->decimal('discount_value', 10, 2);
+            $table->decimal('max_discount', 15, 2)->nullable();
+
+            // voucher type
+            $table->enum('voucher_type', ['admin', 'affiliate']);
+
+            // usage control
+            $table->integer('max_usage')->nullable();
+            $table->integer('used_count')->default(0);
+
+            // lifecycle
+            $table->boolean('is_active')->default(true);
+            $table->timestamp('expired_at')->nullable();
+
+            // audit
             $table->uuid('created_by');
-            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('created_by')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
+
             $table->timestamps();
         });
     }
@@ -30,4 +50,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('vouchers');
     }
-}; 
+};

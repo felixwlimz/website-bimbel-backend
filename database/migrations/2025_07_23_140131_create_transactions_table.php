@@ -13,18 +13,48 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->uuid('id')->primary();
+
+            // ownership
             $table->uuid('user_id');
             $table->uuid('package_id');
-            $table->uuid('voucher_id');
+
+            // voucher (optional)
+            $table->uuid('voucher_id')->nullable();
+
+            // affiliate trace (optional)
+            $table->uuid('affiliate_id')->nullable();
+
+            // invoice
+            $table->string('invoice_number')->unique();
+
+            // pricing snapshot
+            $table->decimal('original_amount', 15, 2);
+            $table->decimal('discount_amount', 15, 2)->default(0);
+            $table->decimal('final_amount', 15, 2);
+
+            // payment
+            $table->string('payment_method')->nullable();
+            $table->string('payment_reference')->nullable();
+
+            // lifecycle
+            $table->enum('status', [
+                'pending',
+                'paid',
+                'expired',
+                'failed'
+            ])->default('pending');
+
+            // timing
+            $table->timestamp('paid_at')->nullable();
+            $table->timestamp('expired_at')->nullable();
+
+            $table->timestamps();
+
+            // constraints
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('package_id')->references('id')->on('packages')->onDelete('cascade');
-            $table->foreign('voucher_id')->references('id')->on('vouchers')->onDelete('cascade');
-            $table->string('payment_method');
-            $table->string('invoice_number')->unique();
-            $table->decimal('amount', 12, 2);
-            $table->decimal('discount_amount', 12, 2);
-            $table->enum('status', ['pending', 'success', 'failed'])->default('pending');
-            $table->timestamps();
+            $table->foreign('voucher_id')->references('id')->on('vouchers')->onDelete('set null');
+            $table->foreign('affiliate_id')->references('id')->on('affiliates')->onDelete('set null');
         });
     }
 

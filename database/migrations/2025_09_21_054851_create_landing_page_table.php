@@ -11,14 +11,37 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('landing_page', function (Blueprint $table) {
+        Schema::create('landing_pages', function (Blueprint $table) {
             $table->uuid('id')->primary();
+
             $table->string('title');
-            $table->string('file_path');
-            $table->text('description');
             $table->string('slug')->unique();
-            $table->uuid('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+            // content
+            $table->text('description')->nullable();
+            $table->string('image_path')->nullable();
+
+            // type & position
+            $table->enum('type', [
+                'hero',
+                'section',
+                'banner',
+                'testimonial'
+            ])->default('section');
+
+            $table->unsignedInteger('order')->default(0);
+
+            // publish lifecycle
+            $table->enum('status', ['draft', 'published'])
+                ->default('draft');
+
+            // audit
+            $table->uuid('created_by');
+            $table->foreign('created_by')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
+
             $table->timestamps();
         });
     }
@@ -28,6 +51,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('landing_page');
+        Schema::dropIfExists('landing_pages');
     }
 };

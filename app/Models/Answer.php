@@ -4,34 +4,37 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Str;
 
 class Answer extends Model
 {
-    //
     use HasFactory;
-     protected static function boot()
-    {
-        parent::boot();
 
-        static::creating(function ($model) {
-            if (empty($model->{$model->getKeyName()})) {
-                $model->{$model->getKeyName()} = (string) Str::uuid();
-            }
-        });
-    }
-
-    public $incrementing = false;
     protected $keyType = 'string';
-
-    protected $table = 'answer';
+    public $incrementing = false;
 
     protected $fillable = [
-        'is_correct'
+        'answer_sheet_id',
+        'question_id',
+        'option_id',
+        'last_saved_at',
     ];
 
+    protected $casts = [
+        'last_saved_at' => 'datetime',
+    ];
 
-    protected function question(){
+    public function answerSheet()
+    {
+        return $this->belongsTo(AnswerSheet::class);
+    }
+
+    public function question()
+    {
         return $this->belongsTo(Question::class);
+    }
+
+    public function option()
+    {
+        return $this->belongsTo(Option::class);
     }
 }

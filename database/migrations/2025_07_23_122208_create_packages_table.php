@@ -13,13 +13,33 @@ return new class extends Migration
     {
         Schema::create('packages', function (Blueprint $table) {
             $table->uuid('id')->primary();
+
             $table->string('title');
-            $table->enum('type', ['materi', 'soal', 'bundling']);
-            $table->text('description');
-            $table->integer('price');
-            $table->integer('duration_minutes');
-            $table->string('thumbnail');
-            $table->boolean('is_published')->default(false);
+            $table->text('description')->nullable();
+
+            $table->enum('type', ['material', 'tryout', 'bundle']);
+
+            // pricing
+            $table->decimal('price', 15, 2);
+
+            // tryout rules
+            $table->integer('duration_minutes')->nullable();
+            $table->integer('passing_grade')->nullable();
+
+            // media
+            $table->string('thumbnail')->nullable();
+
+            // lifecycle
+            $table->enum('status', ['draft', 'pending', 'published'])
+                ->default('draft');
+
+            // audit
+            $table->uuid('created_by');
+            $table->foreign('created_by')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
+
             $table->timestamps();
         });
     }

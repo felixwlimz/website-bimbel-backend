@@ -2,55 +2,54 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Transaction extends Model
 {
-    //
     use HasFactory;
-    protected static function boot()
-    {
-        parent::boot();
 
-        static::creating(function ($model) {
-            if (empty($model->{$model->getKeyName()})) {
-                $model->{$model->getKeyName()} = (string) Str::uuid();
-            }
-        });
-    }
-
-    public $incrementing = false;
     protected $keyType = 'string';
-     protected $fillable = [
-        'id',
+    public $incrementing = false;
+
+    protected $fillable = [
         'user_id',
         'package_id',
         'voucher_id',
-        'payment_method',
+        'affiliate_id',
         'invoice_number',
-        'amount',
+        'original_amount',
         'discount_amount',
+        'final_amount',
+        'payment_method',
+        'payment_reference',
         'status',
-        'snap_token',
+        'paid_at',
+        'expired_at',
     ];
 
-    protected $table = 'transactions';
-    
+    protected $casts = [
+        'paid_at' => 'datetime',
+        'expired_at' => 'datetime',
+    ];
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     public function package()
     {
-        return $this->belongsTo(Package::class, 'package_id');
+        return $this->belongsTo(Package::class);
     }
 
     public function voucher()
     {
-        return $this->belongsTo(Voucher::class, 'voucher_id');
+        return $this->belongsTo(Voucher::class);
+    }
+
+    public function affiliate()
+    {
+        return $this->belongsTo(Affiliate::class);
     }
 }

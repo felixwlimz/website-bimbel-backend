@@ -2,21 +2,23 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Seeder;
 use App\Models\Affiliate;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class AffiliateSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        User::factory()
-        ->has(Affiliate::factory()->count(5))
-        ->count(5)
-        ->create();
+        $user = User::where('role', 'user')->first();
+
+        Affiliate::create([
+            'id' => Str::uuid(),
+            'user_id' => $user->id,
+            'code' => strtoupper(Str::random(8)),
+            'status' => 'approved',
+        ]);
     }
 }
+

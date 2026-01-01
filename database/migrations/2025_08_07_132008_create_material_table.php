@@ -11,13 +11,26 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('material', function (Blueprint $table) {
+        Schema::create('materials', function (Blueprint $table) {
             $table->uuid('id')->primary();
+
             $table->uuid('package_id');
-            $table->foreign('package_id')->references('id')->on('packages')->onDelete('cascade');
+            $table->foreign('package_id')
+                ->references('id')
+                ->on('packages')
+                ->onDelete('cascade');
+
             $table->string('title');
-            $table->string('drive_link');
-            $table->boolean('preview');
+
+            // jangan expose langsung
+            $table->text('drive_link');
+
+            // access control
+            $table->enum('access_type', ['preview', 'full'])
+                ->default('full');
+
+            $table->unsignedInteger('order')->default(0);
+
             $table->timestamps();
         });
     }
@@ -27,6 +40,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('material');
+        Schema::dropIfExists('materials');
     }
 };

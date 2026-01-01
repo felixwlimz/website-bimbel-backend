@@ -11,18 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('affiliate_earnings', function (Blueprint $table) {
+        Schema::create('voucher_usages', function (Blueprint $table) {
             $table->uuid('id')->primary();
 
-            $table->uuid('affiliate_id');
+            $table->uuid('voucher_id');
+            $table->uuid('user_id');
             $table->uuid('transaction_id');
 
-            $table->decimal('commission_rate', 5, 2); // snapshot
-            $table->decimal('commission_amount', 15, 2);
+            $table->timestamp('used_at');
 
-            $table->timestamp('locked_until');
-            $table->enum('status', ['locked', 'available', 'paid'])
-                ->default('locked');
+            $table->unique(['voucher_id', 'transaction_id']);
 
             $table->timestamps();
         });
@@ -33,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('affiliate_earnings');
+        Schema::dropIfExists('voucher_usages');
     }
 };

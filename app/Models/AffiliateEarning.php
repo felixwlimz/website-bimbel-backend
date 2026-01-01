@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Withdrawal extends Model
+class AffiliateEarning extends Model
 {
     use HasFactory;
 
@@ -14,19 +14,15 @@ class Withdrawal extends Model
 
     protected $fillable = [
         'affiliate_id',
-        'amount',
-        'bank_name',
-        'account_number',
-        'account_name',
+        'transaction_id',
+        'commission_rate',
+        'commission_amount',
+        'locked_until',
         'status',
-        'approved_by',
-        'approved_at',
-        'paid_at',
     ];
 
     protected $casts = [
-        'approved_at' => 'datetime',
-        'paid_at' => 'datetime',
+        'locked_until' => 'datetime',
     ];
 
     public function affiliate()
@@ -34,8 +30,8 @@ class Withdrawal extends Model
         return $this->belongsTo(Affiliate::class);
     }
 
-    public function approver()
+    public function transaction()
     {
-        return $this->belongsTo(User::class, 'approved_by');
+        return $this->belongsTo(Transaction::class);
     }
 }

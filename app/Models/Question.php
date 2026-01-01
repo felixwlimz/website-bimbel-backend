@@ -4,52 +4,36 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Str;
 
 class Question extends Model
 {
-    //
     use HasFactory;
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($model) {
-            if (empty($model->{$model->getKeyName()})) {
-                $model->{$model->getKeyName()} = (string) Str::uuid();
-            }
-        });
-    }
-
-    public $incrementing = false;
     protected $keyType = 'string';
+    public $incrementing = false;
 
     protected $fillable = [
-        'judulSoal',
-        'jenisSoal',
-        'isiSoal',
-        'mediaSoal',
-        'bobot',
-        'jawabanBenar',
-        'pembahasan',
-        'subMateri',
         'package_id',
+        'title',
+        'content',
+        'media_type',
+        'media_path',
+        'weight',
+        'sub_topic_id',
+        'explanation',
     ];
 
-    protected $table = 'questions';
+    protected $hidden = [
+        'explanation',
+    ];
+
     public function package()
     {
-        return $this->belongsTo(Package::class, 'package_id');
-    }
-
-    public function answers()
-    {
-        return $this->hasMany(Answer::class, 'question_id', 'id');
+        return $this->belongsTo(Package::class);
     }
 
     public function options()
     {
-        return $this->hasMany(Option::class, 'question_id', 'id');
+        return $this->hasMany(Option::class);
     }
 }

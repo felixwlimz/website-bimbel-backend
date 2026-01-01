@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Material extends Model
+class PackageItem extends Model
 {
     use HasFactory;
 
@@ -14,10 +14,8 @@ class Material extends Model
 
     protected $fillable = [
         'package_id',
-        'title',
-        'drive_link',
-        'access_type',
-        'order',
+        'item_id',
+        'item_type', // material | tryout
     ];
 
     public function package()

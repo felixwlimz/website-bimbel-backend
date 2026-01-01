@@ -2,22 +2,33 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class AnswerSheet extends Model
 {
-    //
     use HasFactory;
-    
+
+    protected $keyType = 'string';
+    public $incrementing = false;
+
     protected $fillable = [
+        'user_id',
+        'package_id',
+        'status',
+        'started_at',
+        'ends_at',
+        'submitted_at',
         'total_score',
-        'testing'
+        'passing',
     ];
 
-    public $incrementing = false;
-    protected $keyType = 'string';
-
+    protected $casts = [
+        'started_at' => 'datetime',
+        'ends_at' => 'datetime',
+        'submitted_at' => 'datetime',
+        'passing' => 'boolean',
+    ];
 
     public function user()
     {
@@ -31,6 +42,6 @@ class AnswerSheet extends Model
 
     public function answers()
     {
-        return $this->hasMany(Answer::class, 'answer_sheet_id', 'id');
+        return $this->hasMany(Answer::class);
     }
 }

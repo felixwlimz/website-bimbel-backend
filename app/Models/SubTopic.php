@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Material extends Model
+class SubTopic extends Model
 {
     use HasFactory;
 
@@ -14,14 +14,16 @@ class Material extends Model
 
     protected $fillable = [
         'package_id',
-        'title',
-        'drive_link',
-        'access_type',
-        'order',
+        'name',
     ];
 
     public function package()
     {
         return $this->belongsTo(Package::class);
+    }
+
+    public function questions()
+    {
+        return $this->hasMany(Question::class);
     }
 }

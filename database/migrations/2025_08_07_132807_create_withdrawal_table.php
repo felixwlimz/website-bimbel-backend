@@ -13,18 +13,39 @@ return new class extends Migration
     {
         Schema::create('withdrawals', function (Blueprint $table) {
             $table->uuid('id')->primary();
+
             $table->uuid('affiliate_id');
-            $table->foreign('affiliate_id')->references('id')->on('affiliate')->onDelete
-('cascade');
-            $table->decimal('amount', 12, 2);
+            $table->foreign('affiliate_id')
+                ->references('id')
+                ->on('affiliates')
+                ->onDelete('cascade');
+
+            $table->decimal('amount', 15, 2);
+
+            // snapshot rekening
             $table->string('bank_name');
             $table->string('account_number');
             $table->string('account_name');
-            $table->enum('status', ['pending', 'completed', 'rejected'])->default('pending');
-            $table->uuid('approved_by');
-            $table->foreign('approved_by')->references('id')->on('users')->onDelete('cascade');
-            $table->timestamps();
 
+            // lifecycle
+            $table->enum('status', [
+                'pending',    // diajukan affiliate
+                'approved',   // disetujui admin
+                'paid',       // dana dikirim
+                'rejected'
+            ])->default('pending');
+
+            // approval
+            $table->uuid('approved_by')->nullable();
+            $table->foreign('approved_by')
+                ->references('id')
+                ->on('users')
+                ->onDelete('set null');
+
+            $table->timestamp('approved_at')->nullable();
+            $table->timestamp('paid_at')->nullable();
+
+            $table->timestamps();
         });
     }
 

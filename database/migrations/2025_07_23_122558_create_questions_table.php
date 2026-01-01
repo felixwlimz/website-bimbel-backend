@@ -13,18 +13,32 @@ return new class extends Migration
     {
         Schema::create('questions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('judulSoal');
-            $table->enum('jenisSoal', ['teks', 'gambar', 'audio']);
+
             $table->uuid('package_id');
-            $table->foreign('package_id')->references('id')->on('packages')->onDelete('cascade');
-            $table->text('isiSoal');
-            $table->string('mediaSoal')->nullable();
-            $table->integer('bobot');
-            $table->string('jawabanBenar');
-            $table->text('pembahasan');
-            $table->string('subMateri');
+            $table->foreign('package_id')
+                ->references('id')
+                ->on('packages')
+                ->onDelete('cascade');
+
+            // content
+            $table->string('title');
+            $table->text('content');
+
+            // media
+            $table->enum('media_type', ['none', 'image', 'audio', 'video'])
+                ->default('none');
+            $table->string('media_path')->nullable();
+
+            // scoring
+            $table->unsignedInteger('weight')->default(1);
+
+            // classification
+            $table->uuid('sub_topic_id')->nullable();
+
+            // explanation
+            $table->text('explanation')->nullable();
+
             $table->timestamps();
-        
         });
     }
 

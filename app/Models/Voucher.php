@@ -4,39 +4,33 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Str;
 
 class Voucher extends Model
 {
-    //
     use HasFactory;
-     protected static function boot()
-    {
-        parent::boot();
 
-        static::creating(function ($model) {
-            if (empty($model->{$model->getKeyName()})) {
-                $model->{$model->getKeyName()} = (string) Str::uuid();
-            }
-        });
-    }
-
-    public $incrementing = false;
     protected $keyType = 'string';
+    public $incrementing = false;
 
     protected $fillable = [
         'code',
-        'discount_rp',
-        'type',
-        'active',
+        'discount_type',
+        'discount_value',
+        'max_discount',
+        'voucher_type',
+        'max_usage',
+        'used_count',
+        'is_active',
+        'expired_at',
+        'created_by',
     ];
 
-    public function users(){
-        return $this->belongsToMany(User::class);
+    protected $casts = [
+        'expired_at' => 'datetime',
+    ];
+
+    public function usages()
+    {
+        return $this->hasMany(VoucherUsage::class);
     }
-
-    
-
-
-
 }

@@ -11,14 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('affiliate', function (Blueprint $table) {
+        Schema::create('affiliates', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            
-            $table->string('code')->unique();
-            $table->decimal('commission_rate', 5, 2);
-            $table->boolean('is_approved')->default(false);
+
+            $table->uuid('user_id')->unique();
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
+
+            $table->string('code', 12)->unique();
+
+            $table->enum('status', ['pending', 'approved', 'suspended'])
+                ->default('pending');
+
             $table->timestamps();
         });
     }
