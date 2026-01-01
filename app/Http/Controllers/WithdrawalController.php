@@ -2,32 +2,44 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Services\WithdrawalServices;
+use Illuminate\Http\Request;
 
 class WithdrawalController extends Controller
 {
-    protected WithdrawalServices $withdrawalServices;
+    public function __construct(
+        protected WithdrawalServices $withdrawalService
+    ) {}
 
-    public function __construct(WithdrawalServices $withdrawalServices)
+    public function index()
     {
-        $this->withdrawalServices = $withdrawalServices;
+        return response()->json($this->withdrawalService->getAll());
     }
 
-
-    public function index(){
-        $withdrawals = $this->withdrawalServices->getAllWithdrawals();
-        return response()->json([
-            'message' => 'Withdrawals retrieved successfully',
-            'data' => $withdrawals
-        ], 200);
+    public function show(string $id)
+    {
+        return response()->json($this->withdrawalService->getById($id));
     }
 
-    public function store(Request $request){
-        $withdrawal = $this->withdrawalServices->createWithdrawal($request);
-        return response()->json([
-            'message' => 'Withdrawal created successfully',
-            'data' => $withdrawal
-        ], 201);
+    public function store(Request $request)
+    {
+        return response()->json(
+            $this->withdrawalService->request($request->all()),
+            201
+        );
+    }
+
+    public function approve(string $id, Request $request)
+    {
+        return response()->json(
+            $this->withdrawalService->approve($id, $request->user()->id)
+        );
+    }
+
+    public function reject(string $id, Request $request)
+    {
+        return response()->json(
+            $this->withdrawalService->reject($id, $request->user()->id)
+        );
     }
 }

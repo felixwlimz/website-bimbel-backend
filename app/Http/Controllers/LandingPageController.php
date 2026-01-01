@@ -7,34 +7,36 @@ use Illuminate\Http\Request;
 
 class LandingPageController extends Controller
 {
-    //
-    protected LandingPageService $landingPageService;
+    public function __construct(
+        protected LandingPageService $landingService
+    ) {}
 
-    public function __construct(LandingPageService $landingPageService)
+    public function public()
     {
-        $this->landingPageService = $landingPageService;
+        return response()->json(
+            $this->landingService->getPublic()
+        );
     }
 
     public function index()
     {
-        $landingPage = $this->landingPageService->getLandingPage();
-        if (!$landingPage) {
-            return response()->json(['message' => 'Landing page not found'], 404);
-        }
-        return response()->json($landingPage);
+        return response()->json(
+            $this->landingService->getAll()
+        );
     }
-
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'file_path' => 'required|file|mimes:jpg,jpeg,png,pdf',
-            'slug' => 'required|string|unique:landing_page,slug',
-        ]);
+        return response()->json(
+            $this->landingService->create($request->all(), $request->user()->id),
+            201
+        );
+    }
 
-        $landingPage = $this->landingPageService->addLandingPage($data);
-        return response()->json($landingPage, 201);
+    public function publish(string $id)
+    {
+        return response()->json(
+            $this->landingService->publish($id)
+        );
     }
 }

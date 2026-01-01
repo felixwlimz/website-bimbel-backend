@@ -2,38 +2,35 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\UserServices;
 use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\Roles;
-use RoleServices;
 
 class UserController extends Controller
 {
+    public function __construct(
+        protected UserServices $userService
+    ) {}
 
-    protected RoleServices $roleServices;
-
-    public function __construct(RoleServices $roleServices)
+    public function index()
     {
-        $this->roleServices = $roleServices;
+        return response()->json($this->userService->getAll());
     }
 
-    public function assignRole(Request $request, User $user ){
-        $role = $request->input('role');
-
-        $isSuccess = $this->roleServices->assignRole($user, $role);
-        if ($isSuccess) { 
-            return redirect()->back()->with('success', 'Role assigned successfully.');
-        } 
-        return redirect()->back()->with('error', 'Failed to assign role.');
+    public function show(string $id)
+    {
+        return response()->json($this->userService->getById($id));
     }
 
-    public function removeRole(Request $request, User $user){
-        $role = $request->input('role');
+    public function update(Request $request, string $id)
+    {
+        return response()->json(
+            $this->userService->update($id, $request->only(['name','email','password']))
+        );
+    }
 
-        $isSuccess = $this->roleServices->removeRole($user, $role);
-        if ($isSuccess) {
-            return redirect()->back()->with('success', 'Role removed successfully.');
-        }
-        return redirect()->back()->with('error', 'Failed to remove role.');
+    public function destroy(string $id)
+    {
+        $this->userService->delete($id);
+        return response()->noContent();
     }
 }

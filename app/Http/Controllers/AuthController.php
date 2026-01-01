@@ -3,59 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Services\AuthServices;
-use Illuminate\Http\Request;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 
 class AuthController extends Controller
 {
-    protected AuthServices $authServices;
+    public function __construct(
+        protected AuthServices $authService
+    ) {}
 
-    public function __construct(AuthServices $authServices)
+    public function register(RegisterRequest $request)
     {
-        $this->authServices = $authServices;
+        return response()->json(
+            $this->authService->register($request->validated()),
+            201
+        );
     }
 
-    public function login(Request $request){
-        return $this->authServices->login($request);
-    }
-
-    public function register(Request $request){
-        return $this->authServices->register($request);
-    }
-
-    public function index()
+    public function login(LoginRequest $request)
     {
-        $users = $this->authServices->getCurrentUser();
-        return response()->json([
-            'message' => 'User retrieved successfully',
-            'code' => 200,
-            'data' => $users
-        ]);
+        return response()->json(
+            $this->authService->login(
+                $request->validated(),
+                $request->boolean('remember')
+            )
+        );
     }
 
-    public function getAllUsers(){
-        return $this->authServices->getAllUsers();
-    }
-
-    public function update(Request $request)
+    public function logout()
     {
-        $updated = $this->authServices->updateUser($request);
-
-        return response()->json([
-            'message' => 'User updated successfully',
-            'code' => 200,
-            'data' => $updated
-        ]);
+        $this->authService->logout();
+        return response()->noContent();
     }
-
-
-    public function delete($id)
-    {
-        $this->authServices->deleteUser($id);
-
-        return response()->json([
-            'message' => 'User deleted successfully',
-            'code' => 200,
-        ]);
-    }
-
 }

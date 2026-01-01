@@ -18,6 +18,37 @@ class TransactionServices
         protected VoucherUsageRepository $voucherUsageRepo
     ) {}
 
+    /**
+     * ============================
+     * QUERY
+     * ============================
+     */
+
+    /**
+     * Riwayat transaksi user login
+     */
+    public function getUserHistory(string $userId)
+    {
+        return $this->transactionRepo->findUserTransactions($userId);
+    }
+
+    /**
+     * Detail transaksi berdasarkan invoice
+     */
+    public function getByInvoice(string $invoice)
+    {
+        return $this->transactionRepo->findByInvoice($invoice);
+    }
+
+    /**
+     * ============================
+     * MUTATION
+     * ============================
+     */
+
+    /**
+     * HANYA dipanggil oleh webhook payment (Midtrans)
+     */
     public function markPaid(Transaction $transaction)
     {
         if ($transaction->status !== 'pending') {
@@ -27,7 +58,7 @@ class TransactionServices
         return DB::transaction(function () use ($transaction) {
 
             $transaction->update([
-                'status' => 'paid',
+                'status'  => 'paid',
                 'paid_at' => now(),
             ]);
 

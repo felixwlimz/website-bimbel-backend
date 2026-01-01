@@ -7,40 +7,37 @@ use Illuminate\Http\Request;
 
 class AffiliateController extends Controller
 {
+    public function __construct(
+        protected AffiliateServices $affiliateService
+    ) {}
 
-    protected AffiliateServices $affiliateServices;
-    //
-    public function __construct(AffiliateServices $affiliateServices)
+    public function index()
     {
-        $this->affiliateServices = $affiliateServices;
-        
+        return response()->json($this->affiliateService->getAll());
     }
 
-    public function index(){
-        $affiliates = $this->affiliateServices->getAffiliateOrders();
-        return response()->json([
-            'message' => 'Affiliates retrieved successfully',
-            'data' => $affiliates
-        ], 200);
+    public function me(Request $request)
+    {
+        return response()->json(
+            $this->affiliateService->getMyAffiliate($request->user()->id)
+        );
     }
 
-    public function store(Request $request){
-
-        $affiliate = $this->affiliateServices->createAffiliate($request);
-
-        return response()->json([
-            'message' => 'Affiliate created successfully',
-            'data' => $affiliate
-        ], 201);
-
+    public function apply(Request $request)
+    {
+        return response()->json(
+            $this->affiliateService->apply(
+                $request->user()->id,
+                $request->only(['bank_name','account_number','account_name'])
+            ),
+            201
+        );
     }
 
-    public function withdraw(Request $request){
-        $withdraw = $this->affiliateServices->withdraw($request);
-
-        return response()->json([
-            'message' => 'Withdrawal created successfully',
-            'data' => $withdraw
-        ]);
+    public function approve(string $id)
+    {
+        return response()->json(
+            $this->affiliateService->approve($id)
+        );
     }
 }
