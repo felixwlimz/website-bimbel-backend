@@ -3,39 +3,108 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class UserRepository
 {
+    /**
+     * =================================
+     * QUERY
+     * =================================
+     */
+
+    /**
+     * Ambil semua user (admin / super admin)
+     * Anti N+1
+     */
     public function findAll()
     {
-        return User::with(['affiliate', 'withdrawals', 'vouchers'])->get();
+        return User::query()
+            ->with([
+                'affiliate:id,user_id,code,status',
+                'affiliate.withdrawals:id,affiliate_id,amount,status',
+                'affiliate.earnings:id,affiliate_id,commission_amount,status',
+            ])
+            ->select([
+                'id',
+                'name',
+                'email',
+                'role',
+                'created_at',
+            ])
+            ->latest()
+            ->get();
     }
 
-    public function findById($id)
+    /**
+     * Ambil user by ID
+     */
+    public function findById(string $id): User
     {
-        return User::with(['affiliate', 'withdrawals', 'vouchers'])->findOrFail($id);
+        return User::query()
+            ->with([
+                'affiliate:id,user_id,code,status',
+                'affiliate.withdrawals:id,affiliate_id,amount,status',
+                'affiliate.earnings:id,affiliate_id,commission_amount,status',
+            ])
+            ->select([
+                'id',
+                'name',
+                'email',
+                'role',
+                'created_at',
+            ])
+            ->findOrFail($id);
     }
 
-    public function create(array $data): User
-    {
-        return User::create($data);
-    }
-
-
+    /**
+     * Ambil user by email (auth / login)
+     */
     public function findByEmail(string $email): ?User
     {
         return User::where('email', $email)->first();
     }
 
+    /**
+     * =================================
+     * MUTATION
+     * =================================
+     */
 
-   public function update(array $data){
-        $user = auth()->user();
-        $user->update($data);
-        return $user;
-   }
+    /**
+     * Create user (register / admin create)
+     */
+    public function create(array $data): User
+    {
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
 
-   public function delete($id){
+        return User::create($data);
+    }
+
+    /**
+     * Update user by ID
+     * (tidak bergantung auth())
+     */
+    public function update(string $id, array $data): User
+    {
         $user = User::findOrFail($id);
-        return $user->delete();
-   }
+
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+
+        $user->update($data);
+
+        return $user->fresh();
+    }
+
+    /**
+     * Delete user
+     */
+    public function delete(string $id): bool
+    {
+        return User::where('id', $id)->delete() > 0;
+    }
 }

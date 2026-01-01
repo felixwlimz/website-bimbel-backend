@@ -1,32 +1,26 @@
-<?php 
+<?php
 
 namespace App\Repositories;
 
 use App\Models\Package;
 
-class PackageRepository{
-
-    public function findAll(){
-        return Package::all();
+class PackageRepository
+{
+    public function getPublished()
+    {
+        return Package::query()
+            ->where('status', 'published')
+            ->withCount(['questions', 'materials'])
+            ->get();
     }
 
-    public function find($id){
-        return Package::findOrFail($id);
-    }
-
-    public function create(array $data){
-        return Package::create($data);
-    }
-
-    public function update($id, $data){
-        $package = Package::findOrFail($id);
-        $package->update($data);
-        return $package;
-    }
-
-    public function delete($id){
-        $package = Package::findOrFail($id);
-        $package->delete();
-        return $package;
+    public function findById(string $id): Package
+    {
+        return Package::query()
+            ->with([
+                'materials:id,package_id,title,drive_link,access_type,order',
+                'questions:id,package_id,title',
+            ])
+            ->findOrFail($id);
     }
 }

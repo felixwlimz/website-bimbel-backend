@@ -6,14 +6,11 @@ use App\Models\Material;
 
 class MaterialRepository
 {
-
-
-    public function create($data)
+    public function findByPackage(string $packageId)
     {
-        return Material::create($data);
-    }
-
-    public function findAll(){
-        return Material::with(['package'])->get();
+        return Material::query()
+            ->where('package_id', $packageId)
+            ->orderBy('order')
+            ->get();
     }
 }

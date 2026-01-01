@@ -2,30 +2,64 @@
 
 namespace App\Services;
 
-use App\Models\LandingPage;
 use App\Repositories\LandingPageRepository;
-use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\DB;
 
 class LandingPageService
 {
-    protected LandingPageRepository $landingPageRepository;
+    public function __construct(
+        protected LandingPageRepository $landingRepo
+    ) {}
 
-    public function __construct(LandingPageRepository $landingPageRepository)
+    public function getPublic()
     {
-        $this->landingPageRepository = $landingPageRepository;
+        return $this->landingRepo->getPublished();
     }
 
-
-    public function getLandingPage()
+    public function getAll()
     {
-        return $this->landingPageRepository->find();
+        return $this->landingRepo->getAll();
     }
 
-
-    public function addLandingPage(array $data)
+    public function getById(string $id)
     {
-        $userId = Auth::id();
-        return $this->landingPageRepository->create($userId, $data);
+        return $this->landingRepo->findById($id);
+    }
+
+    public function create(array $data, string $userId)
+    {
+        return DB::transaction(fn () => $this->landingRepo->create($data, $userId));
+    }
+
+    public function update(string $id, array $data)
+    {
+        return DB::transaction(function () use ($id, $data) {
+            $page = $this->landingRepo->findById($id);
+            return $this->landingRepo->update($page, $data);
+        });
+    }
+
+    public function publish(string $id)
+    {
+        return DB::transaction(function () use ($id) {
+            $page = $this->landingRepo->findById($id);
+            return $this->landingRepo->publish($page);
+        });
+    }
+
+    public function unpublish(string $id)
+    {
+        return DB::transaction(function () use ($id) {
+            $page = $this->landingRepo->findById($id);
+            return $this->landingRepo->unpublish($page);
+        });
+    }
+
+    public function delete(string $id): void
+    {
+        DB::transaction(function () use ($id) {
+            $page = $this->landingRepo->findById($id);
+            $this->landingRepo->delete($page);
+        });
     }
 }

@@ -3,37 +3,47 @@
 namespace App\Services;
 
 use App\Repositories\WithdrawalRepository;
-
+use Illuminate\Support\Facades\DB;
 
 class WithdrawalServices
 {
+    public function __construct(
+        protected WithdrawalRepository $withdrawalRepo
+    ) {}
 
-    protected WithdrawalRepository $withdrawalRepository;
-
-    public function __construct(WithdrawalRepository $withdrawalRepository)
+    public function getAll()
     {
-        $this->withdrawalRepository = $withdrawalRepository;
+        return $this->withdrawalRepo->findAll();
     }
 
-
-    public function getAllWithdrawals()
+    public function getById(string $id)
     {
-        return $this->withdrawalRepository->findAll();
+        return $this->withdrawalRepo->findById($id);
     }
 
-    public function getWithdrawalById($id)
+    public function getByAffiliate(string $affiliateId)
     {
-        return $this->withdrawalRepository->find($id);
+        return $this->withdrawalRepo->findByAffiliate($affiliateId);
     }
 
-    public function createWithdrawal($data)
+    public function request(array $data)
     {
-        return $this->withdrawalRepository->create($data);
+        return DB::transaction(fn () => $this->withdrawalRepo->create($data));
     }
 
-    public function updateWithdrawal($id, $data)
+    public function approve(string $withdrawalId, string $approvedBy)
     {
-        return $this->withdrawalRepository->update($id, $data);
+        return DB::transaction(function () use ($withdrawalId, $approvedBy) {
+            $withdrawal = $this->withdrawalRepo->findById($withdrawalId);
+            return $this->withdrawalRepo->updateStatus($withdrawal, 'completed', $approvedBy);
+        });
     }
 
+    public function reject(string $withdrawalId, string $approvedBy)
+    {
+        return DB::transaction(function () use ($withdrawalId, $approvedBy) {
+            $withdrawal = $this->withdrawalRepo->findById($withdrawalId);
+            return $this->withdrawalRepo->updateStatus($withdrawal, 'rejected', $approvedBy);
+        });
+    }
 }

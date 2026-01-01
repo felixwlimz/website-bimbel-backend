@@ -1,37 +1,25 @@
-<?php 
+<?php
 
 namespace App\Repositories;
+
 use App\Models\Voucher;
 
-
-class VoucherRepository{
-
-    public function findAll(){
-        return Voucher::all();
-    }
-
-    public function findById($id){
-        return Voucher::findOrFail($id);
-    }
-
-    public function create(array $data): Voucher
+class VoucherRepository
+{
+    public function findByCode(string $code): ?Voucher
     {
-        return Voucher::create($data);
+        return Voucher::query()
+            ->where('code', $code)
+            ->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('expired_at')
+                  ->orWhere('expired_at', '>', now());
+            })
+            ->first();
     }
 
-    public function update($id, array $data): Voucher
+    public function incrementUsage(Voucher $voucher): void
     {
-        $voucher = $this->findById($id);
-        $voucher->update($data);
-        return $voucher;
+        $voucher->increment('used_count');
     }
-
-    public function delete($id): void
-    {
-        $voucher = $this->findById($id);
-        $voucher->delete();
-    }
-
-    
-
 }

@@ -3,39 +3,50 @@
 namespace App\Repositories;
 
 use App\Models\Affiliate;
-use App\Models\Withdrawal;
-use Illuminate\Http\Client\Request;
 use Illuminate\Support\Str;
 
 class AffiliateRepository
 {
-
     public function findAll()
     {
-        return Affiliate::with(['user', 'affiliateEarnings'])->get();
+        return Affiliate::query()
+            ->with([
+                'user:id,name,email',
+                'earnings:id,affiliate_id,commission_amount,status',
+                'withdrawals:id,affiliate_id,amount,status',
+            ])
+            ->latest()
+            ->get();
     }
 
-
-    public function create($userId, array $data)
+    public function findByUserId(string $userId): ?Affiliate
     {
-        $affiliate = Affiliate::create([
-            'code' => Str::upper(Str::random(10)),
-            'user_id' => $userId,
-            'commission_rate' => 0,
-            'is_approved' => false,
-        ]);
+        return Affiliate::query()
+            ->with(['earnings', 'withdrawals'])
+            ->where('user_id', $userId)
+            ->first();
+    }
 
-        Withdrawal::create([
+    public function findById(string $id): Affiliate
+    {
+        return Affiliate::query()
+            ->with(['user', 'earnings', 'withdrawals'])
+            ->findOrFail($id);
+    }
+
+    public function create(string $userId): Affiliate
+    {
+        return Affiliate::create([
             'id' => Str::uuid(),
-            'affiliate_id' => $affiliate->id, 
-            'amount' => 0,
+            'user_id' => $userId,
+            'code' => strtoupper(Str::random(10)),
             'status' => 'pending',
-            'approved_by' => $userId,
-            'account_name' => $data['namaPemilikRekening'],
-            'bank_name' => $data['namaBank'],
-            'account_number' => $data['noRekening'],
         ]);
+    }
 
-        return $affiliate;
+    public function updateStatus(Affiliate $affiliate, string $status): Affiliate
+    {
+        $affiliate->update(['status' => $status]);
+        return $affiliate->fresh();
     }
 }

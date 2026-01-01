@@ -1,31 +1,89 @@
-<?php 
+<?php
 
 namespace App\Repositories;
 
 use App\Models\Withdrawal;
+use Illuminate\Support\Str;
 
-class WithdrawalRepository{
+class WithdrawalRepository
+{
+    /**
+     * =================================
+     * QUERY
+     * =================================
+     */
 
-    public function findAll(){
-      return Withdrawal::with(['user', 'affiliate.user'])->get();
+    /**
+     * Ambil withdrawal by ID
+     */
+    public function findById(string $id): Withdrawal
+    {
+        return Withdrawal::query()
+            ->with([
+                'affiliate.user:id,name,email',
+                'approvedBy:id,name,email',
+            ])
+            ->findOrFail($id);
     }
 
-    public function find($id){
-        return Withdrawal::findOrFail($id);
+    /**
+     * Ambil semua withdrawal milik affiliate
+     */
+    public function findByAffiliate(string $affiliateId)
+    {
+        return Withdrawal::query()
+            ->with([
+                'affiliate.user:id,name,email',
+            ])
+            ->where('affiliate_id', $affiliateId)
+            ->latest()
+            ->get();
     }
 
-    public function create($data){
-        return Withdrawal::create([
-            'user_id' => $data['user_id'],
-            'amount' => $data['amount'],
-            'status' => $data['status'],
-            'withdrawal_date' => $data['withdrawal_date'],
+    /**
+     * Ambil semua withdrawal (admin / super admin)
+     */
+    public function findAll()
+    {
+        return Withdrawal::query()
+            ->with([
+                'affiliate.user:id,name,email',
+                'approvedBy:id,name,email',
+            ])
+            ->latest()
+            ->get();
+    }
+
+    /**
+     * =================================
+     * MUTATION
+     * =================================
+     */
+
+    /**
+     * Create withdrawal request
+     */
+    public function create(array $data): Withdrawal
+    {
+        return Withdrawal::create(array_merge($data, [
+            'id' => Str::uuid(),
+            'status' => $data['status'] ?? 'pending',
+        ]));
+    }
+
+    /**
+     * Update status withdrawal
+     */
+    public function updateStatus(
+        Withdrawal $withdrawal,
+        string $status,
+        ?string $approvedBy = null
+    ): Withdrawal {
+        $withdrawal->update([
+            'status'      => $status,
+            'approved_by' => $approvedBy,
         ]);
-    }
 
-    public function update($id, $data){
-        $withdrawal = Withdrawal::findOrFail($id);
-        $withdrawal->update($data);
-        return $withdrawal;
+        return $withdrawal->fresh();
     }
 }

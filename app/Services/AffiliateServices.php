@@ -1,79 +1,67 @@
 <?php
 
 namespace App\Services;
+
 use App\Repositories\AffiliateRepository;
-use Illuminate\Http\Request;
-use App\Models\Withdrawal;
-use Illuminate\Support\Str;
+use App\Repositories\WithdrawalRepository;
+use Illuminate\Support\Facades\DB;
 
-class AffiliateServices {
-
-
-    protected AffiliateRepository $affiliateRepository;
-
-    public function __construct(AffiliateRepository $affiliateRepository)
-    {
-        $this->affiliateRepository = $affiliateRepository;
-    }
-
-    public function getAffiliateOrders()
-    {
-        return $this->affiliateRepository->findAll();
-    }
-
-
-
-    public function createAffiliate(Request $request)
-    {
-        $validated = $request->validate([
-            'namaLengkap' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'noRekening' => 'required|string|max:20',
-            'namaBank' => 'required|string|max:100',
-            'namaPemilikRekening' => 'required|string|max:255',
-        ]);
-
-        $user = auth()->user();
-
-        return $this->affiliateRepository->create($user->id, $validated);
-    }
-
-    public function withdraw(Request $request)
+class AffiliateServices
 {
-    $request->validate([
-        'amount'          => 'required|numeric|min:10000',
-        'bank_name'       => 'required|string',
-        'account_number'  => 'required|string',
-        'account_name'    => 'required|string',
-    ]);
+    public function __construct(
+        protected AffiliateRepository $affiliateRepo,
+        protected WithdrawalRepository $withdrawalRepo
+    ) {}
 
-    $user = auth()->user();
-    $affiliate = $user->affiliate;
-
-    if (!$affiliate) {
-        return response()->json(['message' => 'Affiliate not found'], 404);
+    public function getAll()
+    {
+        return $this->affiliateRepo->findAll();
     }
 
-    if ($request->amount > $affiliate->commission_rate) {
-        return response()->json(['message' => 'Saldo tidak cukup'], 400);
+    public function getById(string $id)
+    {
+        return $this->affiliateRepo->findById($id);
     }
 
-    // Kurangi saldo pending
-    $affiliate->commission_rate -= $request->amount;
-    $affiliate->save();
+    public function getMyAffiliate(string $userId)
+    {
+        return $this->affiliateRepo->findByUserId($userId);
+    }
 
-    $withdraw = Withdrawal::create([
-        'id'             => Str::uuid(),
-        'affiliate_id'   => $affiliate->id,
-        'amount'         => $request->amount,
-        'bank_name'      => $request->bank_name,
-        'account_number' => $request->account_number,
-        'account_name'   => $request->account_name,
-        'status'         => 'pending'
-    ]);
+    /**
+     * User apply affiliate + simpan data bank (withdrawal record initial)
+     */
+    public function apply(string $userId, array $bankData)
+    {
+        return DB::transaction(function () use ($userId, $bankData) {
+            $affiliate = $this->affiliateRepo->create($userId);
 
-    return $withdraw;
-}
+            $this->withdrawalRepo->create([
+                'affiliate_id'   => $affiliate->id,
+                'amount'         => 0,
+                'status'         => 'pending',
+                'bank_name'      => $bankData['bank_name'],
+                'account_number' => $bankData['account_number'],
+                'account_name'   => $bankData['account_name'],
+            ]);
 
+            return $affiliate->load('withdrawals');
+        });
+    }
 
+    public function approve(string $affiliateId)
+    {
+        return DB::transaction(function () use ($affiliateId) {
+            $affiliate = $this->affiliateRepo->findById($affiliateId);
+            return $this->affiliateRepo->updateStatus($affiliate, 'approved');
+        });
+    }
+
+    public function suspend(string $affiliateId)
+    {
+        return DB::transaction(function () use ($affiliateId) {
+            $affiliate = $this->affiliateRepo->findById($affiliateId);
+            return $this->affiliateRepo->updateStatus($affiliate, 'suspended');
+        });
+    }
 }
