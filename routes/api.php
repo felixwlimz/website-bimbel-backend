@@ -1,60 +1,178 @@
 <?php
 
-use App\Http\Controllers\AffiliateController;
-use App\Http\Controllers\TransactionController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\MaterialController;
-use App\Http\Controllers\QuestionController;
-use App\Http\Controllers\WithdrawalController;
-use App\Http\Controllers\PackageController;
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\LandingPageController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\VoucherController;
 
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+use App\Http\Controllers\{
+    AuthController,
+    UserController,
+    AffiliateController,
+    WithdrawalController,
+    PackageController,
+    MaterialController,
+    QuestionController,
+    VoucherController,
+    TransactionController,
+    LandingPageController,
+    AnswerSheetController,
+    AnswerController,
+    MidtransWebhookController
+};
 
+/*
+|--------------------------------------------------------------------------
+| PUBLIC ROUTES (GUEST)
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('auth')->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login',    [AuthController::class, 'login']);
+});
+
+Route::get('/landing-pages', [LandingPageController::class, 'public']);
+
+Route::get('/packages',      [PackageController::class, 'index']);
+Route::get('/packages/{id}', [PackageController::class, 'show']);
+
+/*
+|--------------------------------------------------------------------------
+| AUTHENTICATED ROUTES
+|--------------------------------------------------------------------------
+*/
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::get('/user', [AuthController::class, 'index']);
-    Route::put('/user', [AuthController::class, 'update']);
+    /*
+    |--------------------------------------------------------------------------
+    | AUTH / PROFILE
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
 
+    Route::get('/me', [UserController::class, 'show']);
+    Route::put('/me', [UserController::class, 'update']);
 
-    // Route::middleware('role:super_admin')->group(function () {
-    //     Route::delete('/user/{id}', [AuthController::class, 'delete']);
-    //     Route::delete('/questions/{id}', [QuestionController::class, 'delete']);
-    //     Route::get('/transactions', action: [TransactionController::class, 'index']);
-    //     Route::get('/users', action: [AuthController::class, 'getAllUsers']);
-    // });
+    /*
+    |--------------------------------------------------------------------------
+    | TRANSACTIONS (USER)
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/transactions',           [TransactionController::class, 'history']);
+    Route::get('/transactions/{invoice}', [TransactionController::class, 'show']);
 
-    Route::delete('/user/{id}', [AuthController::class, 'delete']);
-    Route::delete('/questions/{id}', [QuestionController::class, 'delete']);
-    Route::get('/transactions', action: [TransactionController::class, 'index']);
-    Route::get('/users', action: [AuthController::class, 'getAllUsers']);
-    Route::get('/questions', [QuestionController::class, 'index']);
-    Route::post('/questions', [QuestionController::class, 'store']);
-    Route::post('/affiliates', [AffiliateController::class, 'store']);
-    Route::get('/affiliates', [AffiliateController::class, 'index']);
-    Route::post('/affiliates/withdraw', [AffiliateController::class, 'withdraw']);
-    Route::get('/withdrawals', [WithdrawalController::class, 'index']);
-    Route::get('/materials', action: [MaterialController::class, 'index']);
-    Route::post('/upload-materi', [MaterialController::class, 'store']);
-    Route::post('/payments', [PaymentController::class, 'createPayment']);
-    Route::post('/payments/notification', [PaymentController::class, 'notification']);
-    Route::get('/packages', [PackageController::class, 'index']);
-    Route::post('/packages', [PackageController::class, 'store']);
-    Route::put('/packages/{id}', [PackageController::class, 'update']);
-    Route::delete('/packages/{id}', [PackageController::class, 'destroy']);
-    Route::post('/landing-page', [LandingPageController::class, 'store']);
-    Route::get('/landing-page', [LandingPageController::class, 'index']);
+    /*
+    |--------------------------------------------------------------------------
+    | PACKAGE CONTENT
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/packages/{id}/materials', [MaterialController::class, 'byPackage']);
+    Route::get('/packages/{id}/questions', [QuestionController::class, 'byPackage']);
 
-       Route::get('/vouchers', [VoucherController::class, 'index']);
-    Route::post('/vouchers', [VoucherController::class, 'store']);
-    Route::put('/vouchers/{id}', [VoucherController::class, 'update']);
-    Route::delete('/vouchers/{id}', [VoucherController::class, 'destroy']);
+    /*
+    |--------------------------------------------------------------------------
+    | TRYOUT / ANSWERS
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/answer-sheets/{packageId}/start',  [AnswerSheetController::class, 'start']);
+    Route::get('/answer-sheets/{packageId}/active', [AnswerSheetController::class, 'active']);
+    Route::post('/answer-sheets/{sheetId}/submit',  [AnswerSheetController::class, 'submit']);
 
-    // cek voucher user
-    Route::post('/voucher/check', [VoucherController::class, 'check']);
+    Route::post('/answers/autosave',               [AnswerController::class, 'autosave']);
+    Route::get('/answer-sheets/{sheetId}/answers', [AnswerController::class, 'bySheet']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | AFFILIATE (USER)
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/affiliate/me',     [AffiliateController::class, 'me']);
+    Route::post('/affiliate/apply', [AffiliateController::class, 'apply']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | WITHDRAWALS (USER)
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/withdrawals/me', [WithdrawalController::class, 'byAffiliate']);
+    Route::post('/withdrawals',   [WithdrawalController::class, 'store']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | VOUCHER (USER)
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/vouchers/check', [VoucherController::class, 'validate']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN ROUTES
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role:admin,super_admin')->group(function () {
+
+        /*
+        | USERS
+        */
+        Route::get('/users',         [UserController::class, 'index']);
+        Route::get('/users/{id}',    [UserController::class, 'showById']);
+        Route::delete('/users/{id}', [UserController::class, 'destroy']);
+
+        /*
+        | PACKAGES
+        */
+        Route::post('/packages',        [PackageController::class, 'store']);
+        Route::put('/packages/{id}',    [PackageController::class, 'update']);
+        Route::delete('/packages/{id}', [PackageController::class, 'destroy']);
+
+        /*
+        | MATERIALS
+        */
+        Route::post('/materials', [MaterialController::class, 'store']);
+
+        /*
+        | QUESTIONS
+        */
+        Route::post('/questions',        [QuestionController::class, 'store']);
+        Route::delete('/questions/{id}', [QuestionController::class, 'delete']);
+
+        /*
+        | AFFILIATES
+        */
+        Route::get('/affiliates',               [AffiliateController::class, 'index']);
+        Route::post('/affiliates/{id}/approve', [AffiliateController::class, 'approve']);
+
+        /*
+        | WITHDRAWALS
+        */
+        Route::get('/withdrawals',               [WithdrawalController::class, 'index']);
+        Route::post('/withdrawals/{id}/approve', [WithdrawalController::class, 'approve']);
+        Route::post('/withdrawals/{id}/reject',  [WithdrawalController::class, 'reject']);
+
+        /*
+        | VOUCHERS
+        */
+        Route::get('/vouchers',         [VoucherController::class, 'index']);
+        Route::post('/vouchers',        [VoucherController::class, 'store']);
+        Route::put('/vouchers/{id}',    [VoucherController::class, 'update']);
+        Route::delete('/vouchers/{id}', [VoucherController::class, 'destroy']);
+
+        /*
+        | LANDING PAGES
+        */
+        Route::get('/landing-pages/admin',        [LandingPageController::class, 'index']);
+        Route::post('/landing-pages',              [LandingPageController::class, 'store']);
+        Route::post('/landing-pages/{id}/publish', [LandingPageController::class, 'publish']);
+        Route::delete('/landing-pages/{id}',       [LandingPageController::class, 'delete']);
+    });
 });
+
+/*
+|--------------------------------------------------------------------------
+| PAYMENT WEBHOOK (NO AUTH)
+|--------------------------------------------------------------------------
+*/
+
+Route::post(
+    '/payments/midtrans/webhook',
+    [MidtransWebhookController::class, 'handle']
+);
