@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Package;
-use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class PackageSeeder extends Seeder
@@ -16,7 +16,7 @@ class PackageSeeder extends Seeder
         Package::create([
             'id' => Str::uuid(),
             'title' => 'Paket Tryout CPNS',
-            'description' => 'Tryout lengkap CPNS',
+            'description' => 'Tryout CPNS lengkap dengan pembahasan',
             'type' => 'tryout',
             'price' => 150000,
             'duration_minutes' => 90,
@@ -26,4 +26,3 @@ class PackageSeeder extends Seeder
         ]);
     }
 }
-

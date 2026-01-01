@@ -4,19 +4,34 @@ namespace Database\Seeders;
 
 use App\Models\Option;
 use App\Models\Question;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class OptionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        Question::factory()
-            ->count(10)
-            ->has(Option::factory()->count(4))
-            ->create();
+        $questions = Question::all();
+
+        foreach ($questions as $q) {
+            Option::insert([
+                [
+                    'id' => Str::uuid(),
+                    'question_id' => $q->id,
+                    'key' => 'A',
+                    'content' => 'Jawaban A',
+                    'is_correct' => true,
+                    'order' => 1,
+                ],
+                [
+                    'id' => Str::uuid(),
+                    'question_id' => $q->id,
+                    'key' => 'B',
+                    'content' => 'Jawaban B',
+                    'is_correct' => false,
+                    'order' => 2,
+                ],
+            ]);
+        }
     }
 }

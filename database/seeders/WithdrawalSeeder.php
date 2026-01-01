@@ -2,21 +2,26 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\Withdrawal;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Affiliate;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class WithdrawalSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-       User::factory()
-           ->count(10)
-           ->has(Withdrawal::factory()->count(2))
-           ->create();
+        Withdrawal::create([
+            'id' => Str::uuid(),
+            'affiliate_id' => Affiliate::first()->id,
+            'amount' => 15000,
+            'bank_name' => 'BCA',
+            'account_number' => '1234567890',
+            'account_name' => 'Affiliate Test',
+            'status' => 'approved',
+            'approved_by' => User::where('role', 'super_admin')->first()->id,
+            'approved_at' => now(),
+        ]);
     }
 }

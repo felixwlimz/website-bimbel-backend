@@ -2,23 +2,26 @@
 
 namespace Database\Seeders;
 
-use App\Models\Transaction;
-use App\Models\User;
 use App\Models\Voucher;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class VoucherSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        //
-        User::factory()
-            ->has(Voucher::factory()->count(10))
-            ->count(10)
-            ->create();
+        $admin = User::where('role', 'admin')->first();
+
+        Voucher::create([
+            'id' => Str::uuid(),
+            'code' => 'DISKON50',
+            'discount_type' => 'percentage',
+            'discount_value' => 50,
+            'max_discount' => 50000,
+            'voucher_type' => 'admin',
+            'is_active' => true,
+            'created_by' => $admin->id,
+        ]);
     }
 }

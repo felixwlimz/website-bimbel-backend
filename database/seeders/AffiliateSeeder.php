@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Affiliate;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class AffiliateSeeder extends Seeder
@@ -21,4 +21,3 @@ class AffiliateSeeder extends Seeder
         ]);
     }
 }
-
