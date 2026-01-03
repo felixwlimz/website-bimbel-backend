@@ -99,11 +99,7 @@ Route::middleware('auth:sanctum')->group(function () {
     */
     Route::post('/vouchers/check', [VoucherController::class, 'validate']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | ADMIN ROUTES
-    |--------------------------------------------------------------------------
-    */
+   
     Route::middleware('role:admin,super_admin')->group(function () {
 
         /*
