@@ -7,15 +7,7 @@ use Illuminate\Support\Str;
 
 class WithdrawalRepository
 {
-    /**
-     * =================================
-     * QUERY
-     * =================================
-     */
 
-    /**
-     * Ambil withdrawal by ID
-     */
     public function findById(string $id): Withdrawal
     {
         return Withdrawal::query()
@@ -54,15 +46,6 @@ class WithdrawalRepository
             ->get();
     }
 
-    /**
-     * =================================
-     * MUTATION
-     * =================================
-     */
-
-    /**
-     * Create withdrawal request
-     */
     public function create(array $data): Withdrawal
     {
         return Withdrawal::create(array_merge($data, [

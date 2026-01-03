@@ -21,10 +21,13 @@ class UserController extends Controller
         return response()->json($this->userService->getById($id));
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
         return response()->json(
-            $this->userService->update($id, $request->only(['name','email','password']))
+            $this->userService->update(
+                auth()->id(),
+                $request->only(['name', 'email', 'password'])
+            )
         );
     }
 

@@ -3,59 +3,61 @@
 namespace App\Services;
 
 use App\Repositories\UserRepository;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class AuthServices
 {
     public function __construct(
-        protected UserRepository $userRepo
+        protected UserRepository $userRepository
     ) {}
 
-    /**
-     * ============================
-     * REGISTER
-     * ============================
-     */
-    public function register(array $data)
+      public function register(array $data): void
     {
-        // validasi biasanya di FormRequest
-        $user = $this->userRepo->create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
-            'password' => $data['password'],
-            'role'     => 'user',
-        ]);
+        $data['password'] = Hash::make($data['password']);
 
-        // kirim email verifikasi (optional)
-        // event(new Registered($user));
-
-        return $user;
+        $this->userRepository->create($data);
     }
 
-    /**
-     * ============================
-     * LOGIN
-     * ============================
-     */
-    public function login(array $credentials, bool $remember = false)
+    
+    public function login(array $credentials): array
     {
-        if (! Auth::attempt($credentials, $remember)) {
+        $user = $this->userRepository->findByEmail($credentials['email']);
+
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['Email atau password salah.'],
+                'email' => ['Email atau password salah'],
             ]);
         }
 
-        return Auth::user();
+        $user->tokens()->delete();
+
+        $token = $user->createToken('auth-token')->plainTextToken;
+
+        return [
+            'user'  => $user,
+            'token' => $token,
+        ];
+    }
+
+    public function getCurrentUser()
+    {
+        return auth()->user();
+    }
+
+    public function updateCurrentUser(array $data)
+    {
+        return $this->userRepository->update( auth()->id(), $data);
     }
 
     /**
      * ============================
-     * LOGOUT
+     * DELETE USER
      * ============================
      */
-    public function logout()
+    public function deleteUser(string $id): void
     {
-        Auth::logout();
+        $this->userRepository->delete($id);
     }
 }

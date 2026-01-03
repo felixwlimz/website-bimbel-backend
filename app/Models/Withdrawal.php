@@ -34,7 +34,7 @@ class Withdrawal extends Model
         return $this->belongsTo(Affiliate::class);
     }
 
-    public function approver()
+    public function approvedBy()
     {
         return $this->belongsTo(User::class, 'approved_by');
     }

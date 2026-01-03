@@ -49,7 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
     */
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
-    Route::get('/me', [UserController::class, 'show']);
+    Route::get('/me', [AuthController::class, 'me']);
     Route::put('/me', [UserController::class, 'update']);
 
     /*
@@ -80,11 +80,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/answers/autosave',               [AnswerController::class, 'autosave']);
     Route::get('/answer-sheets/{sheetId}/answers', [AnswerController::class, 'bySheet']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | AFFILIATE (USER)
-    |--------------------------------------------------------------------------
-    */
+  
     Route::get('/affiliate/me',     [AffiliateController::class, 'me']);
     Route::post('/affiliate/apply', [AffiliateController::class, 'apply']);
 

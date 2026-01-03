@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\AuthServices;
-use App\Http\Requests\LoginRequest;
-use App\Http\Requests\RegisterRequest;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -12,27 +11,60 @@ class AuthController extends Controller
         protected AuthServices $authService
     ) {}
 
-    public function register(RegisterRequest $request)
+    public function register(Request $request)
     {
-        return response()->json(
-            $this->authService->register($request->validated()),
-            201
-        );
+        $validated = $request->validate([
+            'name'                  => 'required|string|max:255',
+            'email'                 => 'required|string|email|max:255|unique:users',
+            'password'              => 'required|string|min:8|confirmed',
+        ]);
+
+        $this->authService->register($validated);
+
+        return response()->json([
+            'message' => 'User registered successfully',
+        ], 201);
     }
 
-    public function login(LoginRequest $request)
+    public function login(Request $request)
     {
-        return response()->json(
-            $this->authService->login(
-                $request->validated(),
-                $request->boolean('remember')
-            )
-        );
+        $validated = $request->validate([
+            'email'    => 'required|string|email',
+            'password' => 'required|string',
+        ]);
+
+        $result = $this->authService->login($validated);
+
+        return response()->json([
+            'message' => 'Login successful',
+            'user'    => $result['user'],
+            'token'   => $result['token'],
+        ]);
+    }
+
+    public function me()
+    {
+        $user = $this->authService->getCurrentUser();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthenticated',
+            ], 401);
+        }
+
+        return response()->json($user);
     }
 
     public function logout()
     {
-        $this->authService->logout();
-        return response()->noContent();
+        $user = auth()->user();
+
+        if ($user) {
+            $user->tokens()->delete();
+        }
+
+        return response()->json([
+            'message' => 'Logged out',
+        ]);
     }
 }
