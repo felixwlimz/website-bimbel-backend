@@ -3,35 +3,40 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
 
 class LandingPage extends Model
 {
-    protected static function boot()
-    {
-        parent::boot();
+    use HasFactory;
 
+    protected $table = 'landing_pages';
+
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected static function booted()
+    {
         static::creating(function ($model) {
-            if (empty($model->{$model->getKeyName()})) {
+            if (! $model->getKey()) {
                 $model->{$model->getKeyName()} = (string) Str::uuid();
             }
         });
     }
 
-    public $incrementing = false;
-    protected $keyType = 'string';
-
-    protected $table = 'landing_page';
-
     protected $fillable = [
         'title',
-        'file_path',
-        'description',
         'slug',
-        'user_id',
+        'description',
+        'image_path',
+        'type',
+        'order',
+        'status',
+        'created_by',
     ];
 
-    public function user(){
-        return $this->belongsTo(User::class);
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

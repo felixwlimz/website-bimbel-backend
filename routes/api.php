@@ -17,6 +17,7 @@ use App\Http\Controllers\{
     AnswerController,
     MidtransWebhookController
 };
+use App\Models\Affiliate;
 
 /*
 |--------------------------------------------------------------------------
@@ -83,12 +84,9 @@ Route::middleware('auth:sanctum')->group(function () {
   
     Route::get('/affiliate/me',     [AffiliateController::class, 'me']);
     Route::post('/affiliate/apply', [AffiliateController::class, 'apply']);
+    Route::get('/affiliates', action: [AffiliateController::class, 'index']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | WITHDRAWALS (USER)
-    |--------------------------------------------------------------------------
-    */
+  
     Route::get('/withdrawals/me', [WithdrawalController::class, 'byAffiliate']);
     Route::post('/withdrawals',   [WithdrawalController::class, 'store']);
 
@@ -113,7 +111,7 @@ Route::middleware('auth:sanctum')->group(function () {
         | PACKAGES
         */
         Route::post('/packages',        [PackageController::class, 'store']);
-        Route::put('/packages/{id}',    [PackageController::class, 'update']);
+        Route::put('/packages/{id}',    action: [PackageController::class, 'update']);
         Route::delete('/packages/{id}', [PackageController::class, 'destroy']);
 
         /*

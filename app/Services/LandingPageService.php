@@ -26,9 +26,9 @@ class LandingPageService
         return $this->landingRepo->findById($id);
     }
 
-    public function create(array $data, string $userId)
+    public function create(array $data)
     {
-        return DB::transaction(fn () => $this->landingRepo->create($data, $userId));
+        return DB::transaction(fn () => $this->landingRepo->create($data));
     }
 
     public function update(string $id, array $data)

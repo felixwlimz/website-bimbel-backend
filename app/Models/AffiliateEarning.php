@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class AffiliateEarning extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     protected $keyType = 'string';
     public $incrementing = false;
@@ -22,6 +23,8 @@ class AffiliateEarning extends Model
     ];
 
     protected $casts = [
+        'commission_rate' => 'decimal:2',
+        'commission_amount' => 'decimal:2',
         'locked_until' => 'datetime',
     ];
 

@@ -29,7 +29,9 @@ class VoucherController extends Controller
     {
         $validated = $request->validate([
             'code'        => 'required|string|unique:vouchers,code',
-            'discount'    => 'required|numeric|min:1',
+            'discount_value' => 'required|numeric|min:1',
+            'discount_type' => 'required|in:fixed,percentage',
+            'max_discount' => 'required|numeric|min:1',
             'max_usage'   => 'nullable|integer|min:1',
             'expired_at'  => 'nullable|date',
             'is_active'   => 'boolean',
@@ -44,12 +46,15 @@ class VoucherController extends Controller
     }
 
     public function update(Request $request, string $id)
-    {
+{
         $validated = $request->validate([
-            'discount'    => 'sometimes|numeric|min:1',
+            'code'        => 'required|string|unique:vouchers,code',
+            'discount_value' => 'required|numeric|min:1',
+            'discount_type' => 'required|in:fixed,percentage',
+            'max_discount' => 'required|numeric|min:1',
             'max_usage'   => 'nullable|integer|min:1',
             'expired_at'  => 'nullable|date',
-            'is_active'   => 'boolean',
+            'is_active'   => 'required|boolean',
         ]);
 
         $voucher = $this->voucherService->update($id, $validated);

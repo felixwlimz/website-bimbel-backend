@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class LandingPageRepository
 {
- 
+
     public function getPublished()
     {
         return LandingPage::query()
@@ -24,9 +24,7 @@ class LandingPageRepository
             ]);
     }
 
-    /**
-     * Ambil satu section landing page by slug (public)
-     */
+
     public function findPublishedBySlug(string $slug): ?LandingPage
     {
         return LandingPage::query()
@@ -35,16 +33,6 @@ class LandingPageRepository
             ->first();
     }
 
-    /**
-     * ============================
-     * ADMIN / SUPER ADMIN
-     * ============================
-     */
-
-    /**
-     * Ambil semua landing page (draft + published)
-     * Untuk dashboard admin
-     */
     public function getAll()
     {
         return LandingPage::query()
@@ -55,9 +43,7 @@ class LandingPageRepository
             ->get();
     }
 
-    /**
-     * Ambil detail landing page (admin)
-     */
+
     public function findById(string $id): LandingPage
     {
         return LandingPage::query()
@@ -65,51 +51,41 @@ class LandingPageRepository
             ->findOrFail($id);
     }
 
-    /**
-     * ============================
-     * MUTATION
-     * ============================
-     */
 
-    /**
-     * Create landing page (default: draft)
-     */
-    public function create(array $data, string $userId): LandingPage
+    public function create(array $data): LandingPage
     {
         return LandingPage::create([
-            'id'          => Str::uuid(),
             'title'       => $data['title'],
             'slug'        => $data['slug'],
             'description' => $data['description'] ?? null,
             'image_path'  => $data['image_path'] ?? null,
-            'type'        => $data['type'], // hero | section | banner | testimonial
+            'type'        => $data['type'],
             'order'       => $data['order'] ?? 0,
-            'status'      => 'draft',
-            'created_by'  => $userId,
+            'status'      => $data['status'],
+            'created_by'  => auth()->id(),
         ]);
     }
 
     /**
      * Update landing page content
      */
-    public function update(LandingPage $page, array $data): LandingPage
+     public function update(string $id, array $data): LandingPage
     {
+        $page = LandingPage::findOrFail($id);
+
         $page->update([
-            'title'       => $data['title'] ?? $page->title,
-            'slug'        => $data['slug'] ?? $page->slug,
+            'title'       => $data['title']       ?? $page->title,
+            'slug'        => $data['slug']        ?? $page->slug,
             'description' => $data['description'] ?? $page->description,
-            'image_path'  => $data['image_path'] ?? $page->image_path,
-            'type'        => $data['type'] ?? $page->type,
-            'order'       => $data['order'] ?? $page->order,
+            'image_path'  => $data['image_path']  ?? $page->image_path,
+            'type'        => $data['type']        ?? $page->type,
+            'order'       => $data['order']       ?? $page->order,
+            'status'      => $data['status']      ?? $page->status,
         ]);
 
-        return $page->fresh();
+        return $page;
     }
 
-    /**
-     * Publish landing page
-     * (dipanggil dari Service / Super Admin)
-     */
     public function publish(LandingPage $page): LandingPage
     {
         $page->update([

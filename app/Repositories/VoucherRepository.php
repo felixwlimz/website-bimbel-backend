@@ -3,7 +3,9 @@
 namespace App\Repositories;
 
 use App\Models\Voucher;
+use Illuminate\Container\Attributes\Auth;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Str;
 
 class VoucherRepository
 {
@@ -38,7 +40,16 @@ class VoucherRepository
 
     public function create(array $data): Voucher
     {
-        return Voucher::create($data);
+        return Voucher::create([
+            'id' => Str::uuid(),        // ⬅️ penting (karena UUID)
+            'code' => $data['code'],
+            'discount_value' => $data['discount_value'],
+            'discount_type' => $data['discount_type'],
+            'max_usage' => $data['max_usage'] ?? null,
+            'expired_at' => $data['expired_at'] ?? null,
+            'is_active' => $data['is_active'] ?? true,
+            'created_by' => auth()->id()
+        ]);
     }
 
     public function update(string $id, array $data): Voucher
@@ -49,22 +60,13 @@ class VoucherRepository
         return $voucher;
     }
 
-    /**
-     * ============================
-     * DELETE
-     * ============================
-     */
     public function delete(string $id): void
     {
         $voucher = $this->findById($id);
         $voucher->delete();
     }
 
-    /**
-     * ============================
-     * INCREMENT USAGE
-     * ============================
-     */
+
     public function incrementUsage(Voucher $voucher): void
     {
         $voucher->increment('used_count');
