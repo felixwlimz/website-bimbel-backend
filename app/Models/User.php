@@ -80,4 +80,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(Withdrawal::class, 'approved_by');
     }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    // Optional
+    public function notificationReads()
+    {
+        return $this->hasMany(NotificationRead::class);
+    }
 }

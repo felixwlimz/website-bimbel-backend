@@ -4,6 +4,10 @@ namespace App\Repositories;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
+
 
 class UserRepository
 {
@@ -100,11 +104,61 @@ class UserRepository
         return $user->fresh();
     }
 
-    /**
-     * Delete user
-     */
     public function delete(string $id): bool
     {
         return User::where('id', $id)->delete() > 0;
     }
+
+    public function createPasswordResetToken(string $email)
+    {
+        $token = Str::random(64);
+
+        DB::table('password_reset_tokens')
+            ->updateOrInsert(
+                ['email' => $email],
+                [
+                    'token'      => Hash::make($token),
+                    'created_at' => now(),
+                ]
+            );
+
+        return $token;
+    }
+
+    public function resetPassword(string $email, string $newPassword): void
+    {
+        $user = $this->findByEmail($email);
+
+        if (! $user) {
+            throw new \Exception('User tidak ditemukan');
+        }
+
+        $user->update([
+            'password' => Hash::make($newPassword),
+        ]);
+
+        DB::table('password_reset_tokens')
+            ->where('email', $email)
+            ->delete();
+    }
+
+    public function validatePasswordResetToken(string $email, string $token): bool
+    {
+        $record = DB::table('password_reset_tokens')
+            ->where('email', $email)
+            ->first();
+
+        if (! $record) {
+            return false;
+        }
+
+        // token mismatch
+        if (! Hash::check($token, $record->token)) {
+            return false;
+        }
+
+        // expired (60 menit)
+        return Carbon::parse($record->created_at)->addMinutes(60)->isFuture();
+    }
+
 }
