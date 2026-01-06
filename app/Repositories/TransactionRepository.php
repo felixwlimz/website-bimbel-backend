@@ -29,4 +29,9 @@ class TransactionRepository
             ->latest()
             ->get();
     }
+
+    public function create(array $data): Transaction
+    {
+        return Transaction::create($data);
+    }
 }

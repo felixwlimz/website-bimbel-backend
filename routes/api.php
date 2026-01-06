@@ -11,6 +11,7 @@ use App\Http\Controllers\{
     MaterialController,
     QuestionController,
     VoucherController,
+    PaymentController,
     TransactionController,
     LandingPageController,
     AnswerSheetController,
@@ -109,6 +110,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/landing-pages/{id}/publish', [LandingPageController::class, 'publish']);
         Route::delete('/landing-pages/{id}',       [LandingPageController::class, 'delete']);
 
+        Route::post('/payments', [PaymentController::class, 'create']);
 
         Route::get('/notifications', [NotificationController::class, 'index']);
         Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
