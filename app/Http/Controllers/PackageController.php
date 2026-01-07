@@ -11,11 +11,6 @@ class PackageController extends Controller
         protected PackageServices $packageService
     ) {}
 
-    /**
-     * =========================
-     * PUBLIC
-     * =========================
-     */
     public function index()
     {
         return response()->json(
