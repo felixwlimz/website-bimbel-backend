@@ -88,7 +88,7 @@ class AuthServices
         // }
 
         // 🔥 WAJIB agar auth()->user() aktif
-        Auth::login($user);
+        // Auth::login(user: $user);
 
         // optional tapi best practice
         $user->tokens()->delete();
