@@ -69,15 +69,6 @@ class UserRepository
         return User::where('email', $email)->first();
     }
 
-    /**
-     * =================================
-     * MUTATION
-     * =================================
-     */
-
-    /**
-     * Create user (register / admin create)
-     */
     public function create(array $data): User
     {
         if (isset($data['password'])) {

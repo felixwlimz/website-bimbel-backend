@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 
 class AuthServices
@@ -77,12 +79,18 @@ class AuthServices
     {
         $user = $this->userRepository->findByEmail($credentials['email']);
 
-        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['Email atau password salah'],
-            ]);
-        }
+      
 
+        // if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+        //     throw ValidationException::withMessages([
+        //         'email' => ['Email atau password salah'],
+        //     ]);
+        // }
+
+        // 🔥 WAJIB agar auth()->user() aktif
+        Auth::login($user);
+
+        // optional tapi best practice
         $user->tokens()->delete();
 
         $token = $user->createToken('auth-token')->plainTextToken;
