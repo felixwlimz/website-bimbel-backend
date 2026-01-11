@@ -34,12 +34,15 @@ class PaymentServices
         }
 
         // ✅ CREATE TRANSACTION
+        // Fix: Manually generate the UUID for the 'id' column
         $transaction = $this->transactionRepo->create([
+            'id' => (string) Str::uuid(), // <--- ADDED THIS LINE
             'user_id' => $user->id,
             'package_id' => $package->id,
             'voucher_id' => $voucherId,
             'invoice_number' => 'INV-' . strtoupper(Str::random(10)),
             'amount' => $price,
+            'original_amount' => $price,
             'discount_amount' => $discount,
             'final_amount' => max($price - $discount, 0),
             'payment_method' => 'midtrans',

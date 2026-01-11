@@ -10,7 +10,6 @@ class UserController extends Controller
     public function __construct(
         protected UserServices $userService
     ) {}
-
     public function index()
     {
         return response()->json($this->userService->getAll());
