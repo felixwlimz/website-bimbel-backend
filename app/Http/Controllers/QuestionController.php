@@ -44,8 +44,6 @@ class QuestionController extends Controller
 
             // scoring
             'weight'       => 'required|integer|min:1',
-            'score' => 'required|integer|min:0',
-
             // classification
             'sub_topic_id' => 'nullable|uuid',
 
