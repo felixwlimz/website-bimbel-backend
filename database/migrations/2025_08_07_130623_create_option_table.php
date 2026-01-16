@@ -21,6 +21,7 @@ return new class extends Migration
                 ->onDelete('cascade');
 
             $table->string('key', 5); // A, B, C, D
+            $table->integer('score');
             $table->text('content');
 
             $table->boolean('is_correct')->default(false);

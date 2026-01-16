@@ -15,7 +15,7 @@ class Option extends Model
     protected $fillable = [
         'question_id',
         'key',
-        'content',
+        'score',
         'is_correct',
         'order',
     ];
