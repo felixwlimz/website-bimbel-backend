@@ -44,4 +44,9 @@ class AnswerSheet extends Model
     {
         return $this->hasMany(Answer::class);
     }
+
+    public function subTopicScores()
+    {
+        return $this->hasMany(SubTopicScore::class);
+    }
 }
